@@ -1,0 +1,63 @@
+@charset "utf-8";
+
+/*
+**********************************************************************
+
+* init.css
+
+* site name   : rakuten entertainment navi
+* description : initial setting
+* since       : 2010.05.17
+* editor      : hiroyuki.tanjo
+* modified    : 
+* editor      : 
+
+*********************************************************************
+*/
+
+/* ------------------------------------------
+    style reset
+------------------------------------------ */
+
+body {
+	background: #ffffff;
+}
+h1, h2, h3, h4, h5, h6,
+div, p, pre, ul, ol, dl, dt, dd,
+table, td, th,
+form, fieldset,
+address, blockquote {
+	margin: 0;
+	padding: 0;
+	font-size: 100%;
+}
+ul, ol {
+	list-style: none outside;
+}
+fieldset {
+	border: none;
+}
+legend {
+	display: none;
+}
+img {
+	border: none;
+	vertical-align: bottom;
+}
+
+/* ------------------------------------------
+    link setting
+------------------------------------------ */
+
+a:link {
+	text-decoration: underline;
+	color: #1155bb;
+}
+a:visited {
+	text-decoration: underline;
+	color: #883388;
+}
+a:hover {
+	text-decoration: none;
+	color: #aa6655;
+}

@@ -1,0 +1,8 @@
+@charset "utf-8";
+
+div#container {
+	width: 950px;
+	margin: 0 auto;
+	font-size: 82%;
+	line-height: 1.2;
+}
