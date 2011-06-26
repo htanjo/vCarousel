@@ -1,57 +1,58 @@
 @charset "utf-8";
-div.vCarouselWrapper {
+
+div.vcWrapper {
 	margin: 50px auto;
 	width: 300px;
 	position: relative;
 }
-div.vCarouselWrapper li.prevButton {
+div.vcWrapper div.vcPrev {
 	position: absolute;
 	top: -10px;
 	left: 50%;
 	cursor: pointer;
 	z-index: 2;
 }
-div.vCarouselWrapper li.nextButton {
+div.vcWrapper div.vcNext {
 	position: absolute;
 	bottom: -10px;
 	left: 50%;
 	cursor: pointer;
 	z-index: 2;
 }
-div.vCarousel {
+div.vcCarousel {
 	position: relative;
 	height: 470px;
 	border: 1px solid #cccccc;
 	overflow: hidden;
 }
-div.vCarouselInner ul.pageSet {
+div.vcInner ul.vcPage {
 	width: 280px;
 	padding: 10px 10px 0;
 	overflow: hidden;
 	list-style-type: none;
 }
-div.vCarouselInner ul.pageSet li {
+div.vcInner ul.vcPage li {
 	min-height: 105px;
 	padding-bottom: 10px;
 	background: #ffffff;
 	z-index: 0;
 }
-* html div.vCarouselInner ul.pageSet li {
+* html div.vcInner ul.vcPage li {
 	height: 105px;
 	overflow: visible;
 }
-div.vCarouselPager {
+div.vcPager {
 	position: absolute;
 	top: -1.5em;
 	right: 0;
 }
-div.vCarouselInner ul.pageSet dl {
+div.vcInner ul.vcPage dl {
 	overflow: hidden;
 	zoom: 1;
 }
-div.vCarouselInner ul.pageSet dt {
+div.vcInner ul.vcPage dt {
 	float: left;
 }
-div.vCarouselInner ul.pageSet dd {
+div.vcInner ul.vcPage dd {
 	margin-left: 150px;
 }

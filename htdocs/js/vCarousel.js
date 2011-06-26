@@ -1,197 +1,161 @@
 (function($){
-	function vCarousel(object,options){
-		var _this = this;
+	
+	// ---------------------------------------- //
+	// Variables
+	
+	var
+	vCarousel,
+	defaults = {
+		pageItem:	4,			//Item amount per a page
+		usePager:	true,		//Show or hide the page number
+		duration:	450			//Time for switching animation (Msec)
+	},
+	prefix = 'vc';
+	
+	// ---------------------------------------- //
+	// Helper function
+	
+	function $div(className) {
+		var classSrc = className ? ' class="' + prefix + className + '"' : '';
+		return $('<div' + classSrc + ' />');
+	}
+	
+	// ---------------------------------------- //
+	// Main function
+	
+	vCarousel = $.fn.vCarousel = function(options) {
+		var opts = $.extend({}, vCarousel.defaults, options);
 		
-		$.extend(_this,{
-			init: function(){
-				_this.$carousel = object;
-				_this.conf = options;
-				_this.currentPage = 1;
-				_this.totalPage = Math.ceil(_this.$carousel.find('ul.pageSet li').length / _this.conf.pageItem);
-				_this.buttonClickable = true;
-			},
+		return this.each(function() {
+			var
+			// Status
+			totalItem = $(this).find('li').length,
+			currentPage = 1,
+			totalPage = Math.ceil(totalItem / opts.pageItem),
+			buttonClickable = true,
 			
-			initCarousel: function(){
-				//Initialize
-				_this.$carousel.find('ul.pageSet').addClass('pageSetWrapper');
-				if(_this.conf.effect == 'slide') _this.conf.duration = _this.conf.duration * _this.conf.pageItem;
-				
-				//Arrange list items
-				var blankItem = _this.conf.pageItem * _this.totalPage - _this.$carousel.find('ul.pageSetWrapper li').length;
-				for(var i=0; i<blankItem; i++) {
-					_this.$carousel.find('ul.pageSetWrapper').append('<li></li>');
-				}
-				for(var i=0; i<_this.totalPage; i++){
-					_this.$carousel.find('ul.pageSetWrapper li')
-						.slice(0, _this.conf.pageItem)
-						.appendTo(_this.$carousel.find('div.vCarouselInner'))
-						.wrapAll('<ul class="pageSet"></ul>');
-				}
-				_this.$carousel.find('ul.pageSetWrapper').remove();
-				
-				//Exceptions
-				switch(_this.totalPage){
-					case 1:
-						_this.$carousel.find('ul.pageSet').clone().appendTo(_this.$carousel.find('div.vCarouselInner'));
-						_this.$carousel.find('li.nextButton, li.prevButton').hide();
-						break;
-					case 2:
-						_this.$carousel.find('ul.pageSet').clone().appendTo(_this.$carousel.find('div.vCarouselInner'));
-						break;
-				}
-				
-				//Setup carousel
-				_this.$carousel.find('ul.pageSet:last').prependTo(_this.$carousel.find('div.vCarouselInner'));
-				_this.$carousel.find('div.vCarousel')
-					.height(_this.$carousel.find('ul.pageSet:eq(1)').outerHeight())
-					.find('div.vCarouselInner')
-						.css('margin-top','-'+_this.$carousel.find('ul.pageSet:first').outerHeight()+'px');
-				
-				if (_this.conf.usePager) _this.$carousel.find('div.vCarousel').before('<div class="vCarouselPager"></div>');
-				_this.updatePager();
-			},
+			// DOM
+			$this = $(this),
+			$wrapper,
+			$carousel,
+			$inner,
+			$page,
+			$perv,
+			$next,
+			$pager;
 			
-			initEvent: function(){
-				var _this = this;
+			// Initialize
+			initDOM();
+			initEvent();
+			
+			function initDOM() {
+				// Create carousel
+				$inner = $this.wrap($div('Inner')).parent();
+				$carousel = $inner.wrap($div('Carousel')).parent();
+				$wrapper = $carousel.wrap($div('Wrapper')).parent();
 				
+				// Split list items
+				$this.addClass(prefix + 'Page');
+				var blanks = opts.pageItem * totalPage - totalItem;
+				for (var i=0; i<blanks; i++) {
+					$this.append('<li />');
+				}
+				if (totalPage <= 2) {
+					$('li', $this).clone().appendTo($this);
+				}
+				for (;;) {
+					if ($this.find('li').length <= opts.pageItem) break;
+					temp = $this.find('li')
+					.slice(opts.pageItem, opts.pageItem * 2)
+					.appendTo($inner)
+					.wrapAll('<ul />').parent()
+					.addClass(prefix + 'Page');
+				}
+				
+				// Attach buttons
+				$prev = $div('Prev').text('prev').appendTo($wrapper);
+				$next = $div('Next').text('next').appendTo($wrapper);
+				if (totalPage == 1) {
+					$prev.addClass('disabled');
+					$next.addClass('disabled');
+					buttonClickable = false;
+				}
+				
+				// Attach pager
+				if (opts.usePager) $pager = $div('Pager').appendTo($wrapper);;
+				
+				// Setup carousel
+				$page = $('.' + prefix + 'Page', $carousel);
+				$page.eq(-1).prependTo($inner);
+				updatePage();
+				$carousel.height($page.eq(1).outerHeight());
+				$inner.css('margin-top', '-' + $page.eq(0).outerHeight() + 'px');
+			}
+			
+			function initEvent() {
 				//Perv button
-				_this.$carousel.find('li.prevButton').click(function(){
-					if(!_this.buttonClickable) return;
-					_this.switchPage('up');
-					_this.currentPage--;
-					if(_this.currentPage <= 0) _this.currentPage += _this.totalPage;
-					_this.updatePager();
+				$prev.click(function() {
+					if(!buttonClickable) return;
+					currentPage += (currentPage > 1) ? -1 : -1 + totalPage;
+					slidePage('up');
 				});
 				
 				//Next button
-				_this.$carousel.find('li.nextButton').click(function(){
-					if(!_this.buttonClickable) return;
-					_this.switchPage('down');
-					_this.currentPage++;
-					if(_this.currentPage > _this.totalPage) _this.currentPage -= _this.totalPage;
-					_this.updatePager();
+				$next.click(function() {
+					if(!buttonClickable) return;
+					currentPage += (currentPage < totalPage) ? 1 : 1 - totalPage;
+					slidePage('down');
 				});
-			},
+			}
 			
-			switchPage: function(direction){
-				var _this = this;
-				
-				_this.buttonClickable = false;
-				var nextPage, nextPageHeight, slideDistance;
-				switch(direction){
+			function slidePage(direction) {
+				buttonClickable = false;
+				var nextPage, slideDistance;
+				switch (direction) {
 					case 'up':
-						nextPage = _this.$carousel.find('ul.pageSet:eq(0)');
-						nextPageHeight = nextPage.outerHeight();
-						slideDistance = -_this.$carousel.find('ul.pageSet:eq(0)').outerHeight();
+						nextPage = $page.eq(0);
+						slideDistance = - $page.eq(0).outerHeight();
 						break;
 					case 'down':
-					default:
-						nextPage = _this.$carousel.find('ul.pageSet:eq(2)');
-						nextPageHeight = nextPage.outerHeight();
-						slideDistance = _this.$carousel.find('ul.pageSet:eq(1)').outerHeight();
+						nextPage = $page.eq(2);
+						slideDistance = $page.eq(1).outerHeight();
 						break;
 				}
 				
-				_this.$carousel.find('div.vCarousel').animate({
-					height : parseInt(nextPageHeight + 'px')
-				}, _this.conf.duration, 'swing');
+				$carousel.animate({
+					height : nextPage.outerHeight() + 'px'
+				}, opts.duration, 'swing');
 				
-				switch(_this.conf.effect){
-					//Slide effect
-					case 'slide':
-						_this.$carousel.find('div.vCarouselInner').animate({
-							marginTop : parseInt(_this.$carousel.find('div.vCarouselInner').css('margin-top')) - slideDistance + 'px'
-						}, _this.conf.duration, 'swing', 
-						function(){
-							switch (direction){
-								case 'up':
-									_this.$carousel.find('ul.pageSet:last').prependTo(_this.$carousel.find('div.vCarouselInner'));
-									break;
-								case 'down':
-								default:
-									_this.$carousel.find('ul.pageSet:first').appendTo(_this.$carousel.find('div.vCarouselInner'));
-									break;
-							}
-							_this.$carousel.find('div.vCarouselInner').css('margin-top', '-' + _this.$carousel.find('ul.pageSet:first').outerHeight() + 'px');
-							_this.buttonClickable = true;
-						});
-						break;
-					
-					//Fade effect
-					case 'fade':
-					default:
-						nextClone = nextPage.clone()
-							.css({
-								position: 'absolute',
-								top: '0',
-								left: '0',
-								zIndex: '1'
-							})
-							.find('li').css({visibility:'hidden',opacity:'0'})		//Set both properties not to blink in IE
-								.end()
-							.appendTo(_this.$carousel.find('div.vCarouselInner'));
-						_this.$carousel.find('ul.pageSet:eq(2)').css('visibility','hidden');
-						for(var i=0; i<nextClone.find('li').length; i++){
-							switch (direction){
-								case 'up': var j = i; break;
-								case 'down': default: var j = nextClone.find('li').length - 1 - i; break;
-							}
-							if(i != nextClone.find('li').length - 1){
-								(function(arg){
-									setTimeout(function(){
-										nextClone.find('li').eq(arg).css('visibility','visible').fadeTo(_this.conf.duration,1);
-									}, _this.conf.duration / 2 * i);
-								})(j);
-							}
-							else {
-								(function(arg){
-									setTimeout(function(){
-										nextClone.find('li').eq(arg).css('visibility','visible').fadeTo(_this.conf.duration,1,
-										function(){
-											_this.$carousel.find('div.vCarouselInner').css('margin-top', parseInt(_this.$carousel.find('div.vCarouselInner').css('margin-top')) - slideDistance + 'px');
-											_this.$carousel.find('ul.pageSet:eq(2)').css('visibility','visible');
-											nextClone.remove();
-											switch (direction){
-												case 'up':
-													_this.$carousel.find('ul.pageSet:last').prependTo(_this.$carousel.find('div.vCarouselInner'));
-													break;
-												case 'down':
-												default:
-													_this.$carousel.find('ul.pageSet:first').appendTo(_this.$carousel.find('div.vCarouselInner'));
-													break;
-											}
-											_this.$carousel.find('div.vCarouselInner').css('margin-top', '-' + _this.$carousel.find('ul.pageSet:first').outerHeight() + 'px');
-											_this.buttonClickable = true;
-										});
-									}, _this.conf.duration/2*i);
-								})(j);
-							}
-						}
-						break;
-				}
-			},
+				$inner.animate({
+					marginTop : parseInt($inner.css('margin-top')) - slideDistance + 'px'
+				}, opts.duration, 'swing', 
+				function() {
+					switch (direction) {
+						case 'up':
+							$page.eq(-1).prependTo($inner);
+							break;
+						case 'down':
+							$page.eq(0).appendTo($inner);
+							break;
+					}
+					updatePage();
+					$inner.css('margin-top', '-' + $page.eq(0).outerHeight() + 'px');
+					buttonClickable = true;
+				});
+			}
 			
-			updatePager: function(){
-				if (!_this.conf.usePager) return;
-				var pagerText = (_this.totalPage == 1)? 'page: 1' : 'page: '+_this.currentPage+' / '+_this.totalPage;
-				_this.$carousel.find('div.vCarouselPager').text(pagerText);
+			function updatePage() {
+				$page = $('.' + prefix + 'Page', $carousel);
+				if (opts.usePager) {
+					$pager.text((totalPage == 1) ? 'page: 1' : 'page: ' + currentPage + ' / ' + totalPage);
+				}
 			}
 		});
-	}
-	
-	$.fn.vCarousel = function(options){
-		options = $.extend({
-			pageItem:	4,			//Item amount per a page
-			usePager:	true,		//Show or hide the page number
-			effect:		'slide',	//Use 'slide' or 'fade' effect
-			duration:	100			//Time for switching animation (Msec)
-		},options);
-		return this.each(function(){
-			var carousel = new vCarousel($(this),options);
-			carousel.init();
-			carousel.initCarousel();
-			carousel.initEvent();
-		});
 	};
+	
+	// ---------------------------------------- //
+	// Initialize
+	
+	vCarousel.defaults = defaults;
 	
 })(jQuery);
