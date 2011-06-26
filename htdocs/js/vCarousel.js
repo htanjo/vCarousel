@@ -6,9 +6,11 @@
 	var
 	vCarousel,
 	defaults = {
-		pageItem:	4,			//Item amount per a page
-		usePager:	true,		//Show or hide the page number
-		duration:	450			//Time for switching animation (Msec)
+		pageItem:	4,			// Item amount per a page
+		usePager:	true,		// Show or hide the page number
+		duration:	450,		// Duration for switching animation (Msec)
+		autoSlide:	false,		// Auto slide or not
+		autoSlideInterval: 5000	// Enabled when autoSlide is true
 	},
 	prefix = 'vc';
 	
@@ -33,6 +35,7 @@
 			currentPage = 1,
 			totalPage = Math.ceil(totalItem / opts.pageItem),
 			buttonClickable = true,
+			autoSlideTimer,
 			
 			// DOM
 			$this = $(this),
@@ -97,15 +100,11 @@
 			function initEvent() {
 				// Perv button
 				$prev.click(function() {
-					if(!buttonClickable) return;
-					currentPage += (currentPage > 1) ? -1 : -1 + totalPage;
 					slidePage('up');
 				});
 				
 				// Next button
 				$next.click(function() {
-					if(!buttonClickable) return;
-					currentPage += (currentPage < totalPage) ? 1 : 1 - totalPage;
 					slidePage('down');
 				});
 				
@@ -122,17 +121,27 @@
 				.mouseup(function() {
 					$(this).removeClass('active');
 				});
+				
+				// Auto slide
+				if (opts.autoSlide) {
+					autoSlideTimer = setTimeout(function() {
+						slidePage('down');
+					}, opts.autoSlideInterval);
+				}
 			}
 			
 			function slidePage(direction) {
+				if(!buttonClickable) return;
 				buttonClickable = false;
 				var nextPage, slideDistance;
 				switch (direction) {
 					case 'up':
+						currentPage += (currentPage > 1) ? -1 : -1 + totalPage;
 						nextPage = $page.eq(0);
 						slideDistance = - $page.eq(0).outerHeight();
 						break;
 					case 'down':
+						currentPage += (currentPage < totalPage) ? 1 : 1 - totalPage;
 						nextPage = $page.eq(2);
 						slideDistance = $page.eq(1).outerHeight();
 						break;
@@ -157,6 +166,14 @@
 					updatePage();
 					$inner.css('margin-top', '-' + $page.eq(0).outerHeight() + 'px');
 					buttonClickable = true;
+					
+					// Auto slide
+					if (opts.autoSlide) {
+						clearTimeout(autoSlideTimer);
+						autoSlideTimer = setTimeout(function() {
+							slidePage('down');
+						}, opts.autoSlideInterval);
+					}
 				});
 			}
 			

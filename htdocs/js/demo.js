@@ -5,7 +5,8 @@
 		$('ul#carousel02').vCarousel({
 			pageItem: 3,
 			usePager: false,
-			duration: 450
+			duration: 450,
+			autoSlide: true
 		});
 	});
 	
