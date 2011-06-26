@@ -1,58 +1,68 @@
 @charset "utf-8";
 
-div.vcWrapper {
-	margin: 50px auto;
-	width: 300px;
+.vcWrapper {
 	position: relative;
+	width: 300px;
+	padding: 20px 0;
 }
-div.vcWrapper div.vcPrev {
+.vcWrapper ul.vcPage {
+	margin: 0;
+	padding: 10px 10px 0;
+	overflow: hidden;
+	list-style-type: none;
+}
+.vcWrapper ul.vcPage li {
+	min-height: 105px;
+	padding-bottom: 10px;
+}
+* html .vcWrapper ul.vcPage li {
+	height: 105px;
+	overflow: visible;
+}
+.vcWrapper .vcPrev {
 	position: absolute;
-	top: -10px;
-	left: 50%;
+	top: 0;
+	left: 0;
+	width: 300px;
+	height: 20px;
+	overflow: hidden;
 	cursor: pointer;
-	z-index: 2;
+	text-indent: -9999px;
+	background: #aaa;
 }
-div.vcWrapper div.vcNext {
+.vcWrapper .vcNext {
 	position: absolute;
-	bottom: -10px;
-	left: 50%;
+	bottom: 0;
+	left: 0;
+	width: 300px;
+	height: 20px;
+	overflow: hidden;
 	cursor: pointer;
-	z-index: 2;
+	text-indent: -9999px;
+	background: #aaa;
 }
-div.vcCarousel {
+.vcWrapper .vcPrev.hover,
+.vcWrapper .vcNext.hover {
+	background: #bbb;
+}
+.vcWrapper .vcPrev.active,
+.vcWrapper .vcNext.active {
+	background: #999;
+}
+.vcWrapper .vcPrev.disabled,
+.vcWrapper .vcNext.disabled {
+	cursor: default;
+	background: #eee;
+}
+
+.vcWrapper .vcCarousel {
 	position: relative;
 	height: 470px;
 	border: 1px solid #cccccc;
 	overflow: hidden;
 }
-div.vcInner ul.vcPage {
-	width: 280px;
-	padding: 10px 10px 0;
-	overflow: hidden;
-	list-style-type: none;
-}
-div.vcInner ul.vcPage li {
-	min-height: 105px;
-	padding-bottom: 10px;
-	background: #ffffff;
-	z-index: 0;
-}
-* html div.vcInner ul.vcPage li {
-	height: 105px;
-	overflow: visible;
-}
-div.vcPager {
+.vcWrapper .vcPager {
 	position: absolute;
 	top: -1.5em;
 	right: 0;
-}
-div.vcInner ul.vcPage dl {
-	overflow: hidden;
-	zoom: 1;
-}
-div.vcInner ul.vcPage dt {
-	float: left;
-}
-div.vcInner ul.vcPage dd {
-	margin-left: 150px;
 }

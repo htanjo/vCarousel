@@ -40,6 +40,7 @@
 			$carousel,
 			$inner,
 			$page,
+			$controller,
 			$perv,
 			$next,
 			$pager;
@@ -73,8 +74,9 @@
 				}
 				
 				// Attach buttons
-				$prev = $div('Prev').text('prev').appendTo($wrapper);
-				$next = $div('Next').text('next').appendTo($wrapper);
+				$controller = $div('Controller').appendTo($wrapper);
+				$prev = $div('Prev').text('prev').appendTo($controller);
+				$next = $div('Next').text('next').appendTo($controller);
 				if (totalPage == 1) {
 					$prev.addClass('disabled');
 					$next.addClass('disabled');
@@ -93,18 +95,32 @@
 			}
 			
 			function initEvent() {
-				//Perv button
+				// Perv button
 				$prev.click(function() {
 					if(!buttonClickable) return;
 					currentPage += (currentPage > 1) ? -1 : -1 + totalPage;
 					slidePage('up');
 				});
 				
-				//Next button
+				// Next button
 				$next.click(function() {
 					if(!buttonClickable) return;
 					currentPage += (currentPage < totalPage) ? 1 : 1 - totalPage;
 					slidePage('down');
+				});
+				
+				// Common
+				$controller.children()
+				.hover(function() {
+					$(this).addClass('hover');
+				}, function() {
+					$(this).removeClass('hover');
+				})
+				.mousedown(function() {
+					$(this).addClass('active');
+				})
+				.mouseup(function() {
+					$(this).removeClass('active');
 				});
 			}
 			

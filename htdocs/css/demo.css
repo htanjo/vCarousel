@@ -6,3 +6,17 @@ div#container {
 	font-size: 82%;
 	line-height: 1.2;
 }
+
+div#container div.vcWrapper {
+	margin: 50px auto;
+}
+div#container ul.vcPage dl {
+	overflow: hidden;
+	zoom: 1;
+}
+div#container ul.vcPage dt {
+	float: left;
+}
+div#container ul.vcPage dd {
+	margin-left: 150px;
+}

@@ -3,8 +3,8 @@
 	$(function(){
 		$('ul#carousel01').vCarousel();
 		$('ul#carousel02').vCarousel({
-			pageItem: 4,
-			usePager: true,
+			pageItem: 3,
+			usePager: false,
 			duration: 450
 		});
 	});
